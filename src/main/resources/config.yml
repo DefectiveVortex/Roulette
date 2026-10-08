@@ -29,6 +29,18 @@ table:
   # How long the winning number stays on the table before it clears
   result-seconds: 5
 
+wheel:
+  # How many past numbers the board above the wheel shows. 0 = no board
+  board-numbers: 10
+  # What the wheel sounds like to everyone near the table: "<sound> <volume> <pitch>". Leave empty for silence
+  sounds:
+    # The ball passing a quarter of the track
+    track: "block.wooden_button.click_on 0.35 1.9"
+    # The ball crossing into the next pocket while it falls
+    pocket: "block.stone_button.click_on 0.5 1.5"
+    # The ball coming to rest
+    rest: "block.stone_button.click_off 0.7 0.9"
+
 updates:
   # Look for new Roulette versions on Modrinth at startup and every interval-hours
   check: true

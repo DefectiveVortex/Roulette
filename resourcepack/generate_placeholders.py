@@ -47,7 +47,8 @@ WOOD_DARK = (74, 46, 24)
 WOOD_LIGHT = (164, 112, 62)
 METAL = (196, 196, 204)
 GOLD = (214, 172, 60)
-CHIPS = [(236, 236, 236), (196, 40, 44), (44, 92, 196), (36, 36, 40), (128, 60, 170), (222, 176, 50)]
+# Same order as the dyes that stand in for chips when a player has no pack: white, red, blue, green, black, purple.
+CHIPS = [(236, 236, 236), (196, 40, 44), (44, 92, 196), (60, 170, 70), (36, 36, 40), (128, 60, 170)]
 
 FONT = {  # 5 x 7
     "0": ".###. #...# #..## #.#.# ##..# #...# .###.", "1": "..#.. .##.. ..#.. ..#.. ..#.. ..#.. .###.",
@@ -377,6 +378,14 @@ def write_pack_files():
     for name in FLAT + CHIP_IDS:
         write_json(models / f"{name}.json",
                    {"parent": "roulette:item/flat", "textures": {"0": f"roulette:item/{name}"}})
+    # The ball is the exception: a 2/16 square that sits 22/16 block away from the model's centre, towards the
+    # wheel picture's 12 o'clock. The display entity stays at the wheel's centre and swings the ball around by
+    # rotation alone, which the client interpolates as a true arc. display/WheelView.java (BALL_ORBIT) scales it so
+    # that this distance is the ball track, and relies on these two numbers.
+    write_json(models / "ball.json", {
+        "textures": {"0": "roulette:item/ball", "particle": "#0"},
+        "elements": [{"from": [7, 8, 29], "to": [9, 8, 31], "shade": False,
+                      "faces": {"up": {"uv": [16, 16, 0, 0], "texture": "#0"}}}]})
     for name in FLAT:
         write_json(items / f"{name}.json", {"model": {"type": "minecraft:model", "model": f"roulette:item/{name}"}})
     for name in CHIP_IDS:

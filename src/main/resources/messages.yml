@@ -49,3 +49,10 @@ round-refunded: "&7Your chips were returned: &e%amount%&7."
 number-red: "&c%number%"
 number-black: "&8%number%"
 number-green: "&a%number%"
+
+# The board of recent numbers above the wheel (newest first). Black is shown light: the board is dark
+board-title: "&6Last numbers"
+board-empty: "&7-"
+board-red: "&c%number%"
+board-black: "&f%number%"
+board-green: "&a%number%"
