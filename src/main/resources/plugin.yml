@@ -1,0 +1,24 @@
+name: Roulette
+version: ${project.version}
+main: com.vortex.roulette.RoulettePlugin
+description: European and American roulette tables for Minecraft
+author: DefectiveVortex
+api-version: '1.21.4'
+depend: [Vault]
+softdepend: [PlaceholderAPI]
+load: POSTWORLD
+
+commands:
+  roulette:
+    description: Main command for the Roulette plugin
+    usage: /<command> help
+
+permissions:
+  roulette.admin:
+    description: Create, remove and configure roulette tables; reload
+    default: op
+    children:
+      roulette.play: true
+  roulette.play:
+    description: Sit at roulette tables and bet
+    default: true
