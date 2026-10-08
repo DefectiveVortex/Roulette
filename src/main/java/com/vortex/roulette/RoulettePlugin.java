@@ -2,6 +2,7 @@ package com.vortex.roulette;
 
 import com.vortex.roulette.command.RouletteCommand;
 import com.vortex.roulette.config.ConfigManager;
+import com.vortex.roulette.display.WheelView;
 import com.vortex.roulette.economy.Bank;
 import com.vortex.roulette.economy.Money;
 import com.vortex.roulette.game.GameClock;
@@ -45,6 +46,7 @@ public final class RoulettePlugin extends JavaPlugin {
         pack = new PackDelivery(this);
         getServer().getPluginManager().registerEvents(pack, this);
         tables = new TableManager(this);
+        tables.addAttachment(WheelView.factory(this));
         tables.enable();
 
         PluginCommand command = Objects.requireNonNull(getCommand("roulette"), "roulette command missing from plugin.yml");
