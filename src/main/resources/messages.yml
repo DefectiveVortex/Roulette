@@ -38,6 +38,8 @@ version-open-hover: "&7Open the Modrinth page"
 help-header: "&4&lRoulette"
 help-lines:
   - "&e/roulette help &7- This list"
+  - "&e/roulette stats [player] &7- Roulette statistics"
+  - "&e/roulette top [wagered|won|net|biggest|rounds] &7- The leaderboards"
   - "&e/roulette version &7- Plugin version"
 help-admin-lines:
   - "&c/roulette reload &7- Reload config and messages"
