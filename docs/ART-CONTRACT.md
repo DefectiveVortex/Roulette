@@ -3,9 +3,8 @@
 What the Roulette plugin needs drawn, where each file goes, and the few measurements the code depends on.
 Everything not listed under "The code relies on" is yours to design.
 
-Status 2026-10-08: the geometry below is final. A generated placeholder for every file is being added to the repo at
-the same paths; they have the exact geometry, so you can paint over them. Until they are there, this document is
-enough to start.
+Status 2026-10-08: the geometry below is final. The repo holds a generated placeholder for every file at the path
+given here. They have the exact geometry, so you can paint over them.
 
 ## How it is shown in the game
 
@@ -173,9 +172,15 @@ The table itself (blocks), anything 3D, sounds, fonts, and the board of recent n
 
 - Replace a placeholder by saving your file over it under the same name, then commit and push as usual. Run
   `git pull --rebase origin main` first, because the code sessions push to `main` too.
+- Before every commit run `python resourcepack/check_art.py --preview preview.png` (plain Python 3, nothing to
+  install). It checks every file against this document, tells you which files are still placeholders, and draws
+  both tables from the current files so you can see whether numbers, lines, pockets, chips and ball line up.
+  Do not commit the preview.
 - `resourcepack/generate_placeholders.py` makes the placeholders. It never overwrites a file you have changed: it
   only refreshes files that are still byte-for-byte its own output.
-- Leave `pack.mcmeta` and everything under `assets/roulette/models/` and `assets/roulette/items/` alone. They are
-  generated and tell the game how to lay the pictures flat.
+- Leave `pack.mcmeta`, `placeholders.json` and everything under `assets/roulette/models/` and
+  `assets/roulette/items/` alone. They are generated and tell the game how to lay the pictures flat.
+- `resourcepack/contract.json` holds the numbers of this document for the scripts and the code's tests. This
+  document and that file change together or not at all, and only when Vortex has agreed to the change.
 - Nobody on the code side can see the game. Vortex checks on the test server whether things line up. If a
   measurement here gets in the way of a good design, say so through him before drawing around it.
