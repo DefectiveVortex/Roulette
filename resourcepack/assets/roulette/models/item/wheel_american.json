@@ -1,0 +1,6 @@
+{
+  "parent": "roulette:item/flat",
+  "textures": {
+    "0": "roulette:item/wheel_american"
+  }
+}
