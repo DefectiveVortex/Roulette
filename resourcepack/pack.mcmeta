@@ -1,0 +1,12 @@
+{
+  "pack": {
+    "description": "Roulette: felt, wheel and chips",
+    "pack_format": 46,
+    "supported_formats": [
+      46,
+      64
+    ],
+    "min_format": 46,
+    "max_format": 120
+  }
+}
