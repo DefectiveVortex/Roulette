@@ -3,6 +3,7 @@ package com.vortex.roulette.game;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
+import com.vortex.roulette.economy.Bank;
 import com.vortex.roulette.model.BetSpot;
 import com.vortex.roulette.model.BetSpots;
 import com.vortex.roulette.model.BetType;
@@ -11,6 +12,8 @@ import com.vortex.roulette.model.WheelType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.jupiter.api.Test;
 
 class RoundTest {
@@ -87,6 +90,57 @@ class RoundTest {
         assertEquals(PlaceResult.OK, round.place(alice, spots.evenMoney(BetType.BLACK), 500));
         assertEquals(PlaceResult.INSUFFICIENT_FUNDS, round.place(alice, spots.evenMoney(BetType.EVEN), 500));
         assertEquals(400, bank.balance(alice));
+    }
+
+    @Test
+    void aBankThatThrowsDoesNotStopTheRound() {
+        UUID carol = UUID.randomUUID();
+        Bank broken = new Bank() {
+            @Override
+            public boolean reserve(UUID roundId, UUID player, long amount) {
+                if (player.equals(carol)) {
+                    throw new IllegalStateException("economy down");
+                }
+                return bank.reserve(roundId, player, amount);
+            }
+
+            @Override
+            public void refund(UUID roundId, UUID player, long amount) {
+                bank.refund(roundId, player, amount);
+            }
+
+            @Override
+            public void pay(UUID roundId, UUID player, long staked, long payout) {
+                if (player.equals(alice)) {
+                    throw new IllegalStateException("economy down");
+                }
+                bank.pay(roundId, player, staked, payout);
+            }
+
+            @Override
+            public long balance(UUID player) {
+                return bank.balance(player);
+            }
+        };
+        bank.deposit(alice, 1000);
+        bank.deposit(bob, 1000);
+        Round round = new Round("t1", RULES, broken, clock, wheel -> next);
+        Logger.getLogger("Roulette").setLevel(Level.OFF);
+        try {
+            assertEquals(PlaceResult.INSUFFICIENT_FUNDS, round.place(carol, spots.straight(Pocket.of(17)), 10));
+            assertEquals(RoundPhase.IDLE, round.phase());
+            round.place(alice, spots.straight(Pocket.of(17)), 10);
+            round.place(bob, spots.straight(Pocket.of(17)), 10);
+            clock.advance(600 + 160 + 100);
+        } finally {
+            Logger.getLogger("Roulette").setLevel(null);
+        }
+
+        // Alice's payment failed: bob is still paid, the table still clears, her stake is still held by the bank.
+        assertEquals(1350, bank.balance(bob));
+        assertEquals(990, bank.balance(alice));
+        assertEquals(10, bank.reservedTotal());
+        assertEquals(RoundPhase.IDLE, round.phase());
     }
 
     @Test
