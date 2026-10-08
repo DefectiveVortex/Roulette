@@ -37,3 +37,8 @@ updates:
   # release, beta or alpha. beta also takes releases; alpha takes everything
   channel: release
   interval-hours: 12
+
+stats:
+  # How often changed statistics are written to stats.yml, in minutes (they are also written on shutdown).
+  # 1 to 1440.
+  save-minutes: 5

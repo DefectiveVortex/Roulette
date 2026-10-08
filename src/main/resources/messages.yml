@@ -49,3 +49,25 @@ round-refunded: "&7Your chips were returned: &e%amount%&7."
 number-red: "&c%number%"
 number-black: "&8%number%"
 number-green: "&a%number%"
+
+# Money that could not be handed over at once (the economy refused), and its arrival later
+money-kept: "&eYour &f%amount% &ecould not be paid right now. It is kept for you and paid as soon as the economy accepts it."
+money-returned: "&aRoulette paid you &e%amount% &athat was still owed to you."
+
+# Statistics (/roulette stats [player], /roulette top [wagered|won|net|biggest|rounds])
+stats-header: "&4&lRoulette &7statistics of &f%player%"
+stats-lines:
+  - "&7Rounds: &f%rounds%&7, won &f%wins% &7(&f%win_rate%%&7)"
+  - "&7Wagered: &e%wagered%&7, paid out: &e%won%"
+  - "&7Net: %net%&7, biggest win: &e%biggest_win%"
+stats-none: "&7%player% hasn't finished a round of roulette yet."
+stats-console: "&cFrom the console, name a player: &e/roulette stats <player>"
+top-header: "&4&lRoulette &7top %count% by %ranking%"
+top-line: "&7%rank%. &f%player% &7- &e%value%"
+top-empty: "&7Nobody has finished a round of roulette yet."
+top-usage: "&cUse &e/roulette top [wagered|won|net|biggest|rounds]"
+top-ranking-wagered: "money wagered"
+top-ranking-won: "money paid out"
+top-ranking-net: "net winnings"
+top-ranking-biggest: "biggest single win"
+top-ranking-rounds: "rounds played"

@@ -84,6 +84,6 @@ from the config.
 
 ## Test
 
-Unit tests replay every crash point against a fake economy (`StakeJournalTest`, `VaultBankTest`). On the test server
+Unit tests replay every crash point against a fake economy (`StakeJournalTest`, `JournaledBankTest`). On the test server
 the bots check balances before and after: win, lose, take back, leave, `/stop` mid-round, `kill -9` during betting
 and during the spin, restart twice (the second start must pay nothing), and a refused deposit.

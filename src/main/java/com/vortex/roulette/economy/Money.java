@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -42,6 +43,17 @@ public final class Money implements Listener {
         try {
             bank = new JournaledBank(wallet, StakeJournal.open(file, plugin.getLogger()), plugin.getLogger());
             bank.recover();
+            bank.setOwedListener(new JournaledBank.OwedListener() {
+                @Override
+                public void owed(UUID player, long amount) {
+                    tell(plugin, player, "money-kept", amount);
+                }
+
+                @Override
+                public void delivered(UUID player, long amount) {
+                    tell(plugin, player, "money-returned", amount);
+                }
+            });
             plugin.setBank(bank);
         } catch (IOException | RuntimeException e) {
             plugin.getLogger().log(Level.SEVERE, "Cannot open the stake journal " + file
@@ -59,6 +71,16 @@ public final class Money implements Listener {
             }
         });
         return money;
+    }
+
+    private static void tell(RoulettePlugin plugin, UUID player, String key, long amount) {
+        Player online = Bukkit.getPlayer(player);
+        if (online != null) {
+            String message = plugin.config().prefixed(key, "amount", plugin.config().money(amount));
+            if (!message.isEmpty()) {
+                online.sendMessage(message);
+            }
+        }
     }
 
     /** The journaled bank, or null if the journal could not be opened (the tables then take no bets). */
