@@ -97,6 +97,19 @@ public final class ConfigValidator {
 
         range("stats.save-minutes", 1, 1440);
 
+        range("wheel.board-numbers", 0, 30);
+
+        oneOf("resource-pack.send", Set.of("table", "join", "never"));
+        String url = config.getString("resource-pack.url", "");
+        if (!url.isEmpty() && !url.startsWith("https://") && !url.startsWith("http://")) {
+            replace("resource-pack.url", "must be an http(s) link or empty", url, "");
+        }
+        String sha1 = config.getString("resource-pack.sha1", "");
+        if (!SHA1.matcher(sha1.trim()).matches()) {
+            // With no hash clients skip the check and download the pack every session.
+            replace("resource-pack.sha1", "must be 40 hex characters or empty", sha1, "");
+        }
+
         oneOf("updates.channel", Set.of("release", "beta", "alpha"));
         atLeast("updates.interval-hours", 1);
     }

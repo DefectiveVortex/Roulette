@@ -8,6 +8,7 @@ import com.vortex.roulette.game.GameClock;
 import com.vortex.roulette.game.PocketSource;
 import com.vortex.roulette.game.Round;
 import com.vortex.roulette.game.TableRules;
+import com.vortex.roulette.pack.PackDelivery;
 import com.vortex.roulette.stats.Placeholders;
 import com.vortex.roulette.stats.StatsCommand;
 import com.vortex.roulette.stats.StatsManager;
@@ -26,6 +27,7 @@ public final class RoulettePlugin extends JavaPlugin {
     private UpdateService updates;
     private Money money;
     private StatsManager stats;
+    private PackDelivery pack;
     /** Every round machine handed out and not yet discarded, so a disable can refund what is on the tables. */
     private final Set<Round> rounds = new LinkedHashSet<>();
     private Bank bank;
@@ -37,6 +39,8 @@ public final class RoulettePlugin extends JavaPlugin {
         money = Money.install(this);
         stats = new StatsManager(this, config.statsSaveMinutes());
         Placeholders.hook(this, stats);
+        pack = new PackDelivery(this);
+        getServer().getPluginManager().registerEvents(pack, this);
 
         PluginCommand command = Objects.requireNonNull(getCommand("roulette"), "roulette command missing from plugin.yml");
         RouletteCommand executor = new RouletteCommand(this, new StatsCommand(config, stats));
@@ -105,6 +109,11 @@ public final class RoulettePlugin extends JavaPlugin {
     public void discardRound(Round round) {
         round.abort();
         rounds.remove(round);
+    }
+
+    /** Offers the resource pack and knows who has it. */
+    public PackDelivery pack() {
+        return pack;
     }
 
     public StatsManager stats() {
