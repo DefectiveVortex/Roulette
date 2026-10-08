@@ -1,6 +1,7 @@
 package com.vortex.roulette;
 
 import com.vortex.roulette.command.RouletteCommand;
+import com.vortex.roulette.config.ConfigManager;
 import com.vortex.roulette.economy.Bank;
 import com.vortex.roulette.game.GameClock;
 import com.vortex.roulette.game.PocketSource;
@@ -13,11 +14,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class RoulettePlugin extends JavaPlugin {
     private final PocketSource pockets = PocketSource.secure();
     private GameClock clock;
+    private ConfigManager config;
     private Bank bank;
 
     @Override
     public void onEnable() {
-        saveDefaultConfig();
+        config = new ConfigManager(this);
         clock = new BukkitClock(this);
 
         PluginCommand command = Objects.requireNonNull(getCommand("roulette"), "roulette command missing from plugin.yml");
@@ -29,6 +31,15 @@ public final class RoulettePlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         // Tables abort their rounds here (Round#abort refunds every unpaid stake) once table/ lands.
+    }
+
+    public ConfigManager config() {
+        return config;
+    }
+
+    /** Re-reads config.yml and the messages; returns how many warnings the check logged. */
+    public int reload() {
+        return config.reload();
     }
 
     /** The economy behind every table. Null until economy/ installs one with {@link #setBank}. */

@@ -1,0 +1,51 @@
+# Messages Configuration File (English)
+# This file contains all user-facing messages. Other languages live in messages_<code>.yml;
+# pick one with `language:` in config.yml. Keys missing from a translation fall back to this text.
+# Color codes: &0-&9, &a-&f for colors, &l (bold), &n (underline), &o (italic), &m (strikethrough), &r (reset)
+# Placeholders are marked with %placeholder_name%
+# Set a message to "" to stop it being sent at all (e.g. to cut chat spam).
+
+# File format version, used to upgrade this file when Roulette updates. Don't change it.
+config-version: 1
+
+# Core messages
+prefix: "&8[&4Roulette&8] &r"
+no-permission: "&cYou don't have permission to do that!"
+player-only-command: "&cThis command can only be used by players!"
+unknown-command: "&cUnknown subcommand. Use &e/roulette help&c."
+currency-format: "$%amount%"
+economy-unavailable: "&cThe economy isn't available right now. Is Vault and an economy plugin installed?"
+reload-done: "&aRoulette configuration reloaded."
+reload-warnings: "&eRoulette configuration reloaded with %count% warning(s). See the console."
+version: "&7Roulette &f%version%"
+
+# Help (/roulette help)
+help-header: "&4&lRoulette"
+help-lines:
+  - "&e/roulette help &7- This list"
+  - "&e/roulette version &7- Plugin version"
+help-admin-lines:
+  - "&c/roulette reload &7- Reload config and messages"
+
+# Why a chip could not be placed or taken back
+bet-closed: "&cNo more bets."
+bet-invalid-spot: "&cThere is no bet there."
+bet-invalid-amount: "&cThat is not an amount you can bet."
+bet-below-min: "&cThe minimum on one spot at this table is &e%min%&c."
+bet-above-max: "&cThe maximum on one spot at this table is &e%max%&c."
+bet-above-max-payout: "&cThat bet could win more than this table pays out (&e%max%&c)."
+bet-insufficient-funds: "&cYou can't afford that chip."
+bet-no-bet: "&cYou have no chips there."
+
+# The round
+round-betting-open: "&aPlace your bets! &7Betting closes in &e%seconds%s&7."
+round-bets-closed: "&eNo more bets."
+round-result: "&7The ball lands on %number%&7."
+round-won: "&aYou won &e%amount%&a."
+round-lost: "&7No win this time."
+round-refunded: "&7Your chips were returned: &e%amount%&7."
+
+# How a pocket is shown in chat, by colour
+number-red: "&c%number%"
+number-black: "&8%number%"
+number-green: "&a%number%"

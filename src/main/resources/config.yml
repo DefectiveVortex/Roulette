@@ -1,2 +1,39 @@
-# Roulette configuration. Filled in as the parts land; see the README.
+# Roulette configuration. Apply changes with /roulette reload.
+# Roulette checks this file on every start and reload: missing settings are added (your values and comments are
+# kept, the previous file is saved as config.yml.pre-update.bak), and a value that doesn't make sense is
+# reported in the console and replaced by its default until you fix it. A file that can't be read at all is
+# moved to config.yml.broken-<date> and rebuilt, keeping every setting that could still be read.
+
+# File format version, used to upgrade this file when Roulette updates. Don't change it.
 config-version: 1
+
+# Language for player-facing messages. English is read from messages.yml, other languages from
+# messages_<code>.yml. To add your own language, drop a messages_<code>.yml into this folder and set its
+# code here. Apply with /roulette reload.
+language: en
+
+# Defaults for new tables. Each table keeps its own copy.
+table:
+  # european (single zero, 37 pockets) or american (0 and 00, 38 pockets)
+  wheel: european
+  # Smallest and largest stake a player may have on one bet spot
+  min-bet: 10
+  max-bet: 1000
+  # The most one player can win on a single spin, stakes not counted. The house pays every win, so this is
+  # your risk limit: a bet that could win more is refused. 0 = no limit.
+  max-payout: 50000
+  # From the first chip to "no more bets"
+  betting-seconds: 30
+  # How long the wheel spins before the result
+  spin-seconds: 8
+  # How long the winning number stays on the table before it clears
+  result-seconds: 5
+
+updates:
+  # Look for new Roulette versions on Modrinth at startup and every interval-hours
+  check: true
+  # Download a newer version into plugins/update/ so it installs on the next restart
+  auto-download: true
+  # release, beta or alpha. beta also takes releases; alpha takes everything
+  channel: release
+  interval-hours: 12
