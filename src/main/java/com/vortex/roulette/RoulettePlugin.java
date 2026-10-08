@@ -12,6 +12,8 @@ import com.vortex.roulette.pack.PackDelivery;
 import com.vortex.roulette.stats.Placeholders;
 import com.vortex.roulette.stats.StatsCommand;
 import com.vortex.roulette.stats.StatsManager;
+import com.vortex.roulette.table.TableCommands;
+import com.vortex.roulette.table.TableManager;
 import com.vortex.roulette.update.UpdateService;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -28,6 +30,7 @@ public final class RoulettePlugin extends JavaPlugin {
     private Money money;
     private StatsManager stats;
     private PackDelivery pack;
+    private TableManager tables;
     /** Every round machine handed out and not yet discarded, so a disable can refund what is on the tables. */
     private final Set<Round> rounds = new LinkedHashSet<>();
     private Bank bank;
@@ -41,9 +44,12 @@ public final class RoulettePlugin extends JavaPlugin {
         Placeholders.hook(this, stats);
         pack = new PackDelivery(this);
         getServer().getPluginManager().registerEvents(pack, this);
+        tables = new TableManager(this);
+        tables.enable();
 
         PluginCommand command = Objects.requireNonNull(getCommand("roulette"), "roulette command missing from plugin.yml");
-        RouletteCommand executor = new RouletteCommand(this, new StatsCommand(config, stats));
+        RouletteCommand executor = new RouletteCommand(this, new StatsCommand(config, stats),
+            new TableCommands(this, tables));
         command.setExecutor(executor);
         command.setTabCompleter(executor);
 
@@ -56,7 +62,11 @@ public final class RoulettePlugin extends JavaPlugin {
         if (updates != null) {
             updates.stop();
         }
-        // Order matters: refunds go through the bank, so rounds first and the journal last.
+        // Order matters. Tables first: they send everyone away, give held items back and discard their rounds.
+        // Refunds go through the bank, so any round still out is aborted next, and the journal closes last.
+        if (tables != null) {
+            tables.disable();
+        }
         for (Round round : new ArrayList<>(rounds)) {
             round.abort();
         }
@@ -76,6 +86,7 @@ public final class RoulettePlugin extends JavaPlugin {
     /** Re-reads config.yml and the messages; returns how many warnings the check logged. */
     public int reload() {
         int warnings = config.reload();
+        tables.reload();
         updates.reload();
         return warnings;
     }
@@ -109,6 +120,11 @@ public final class RoulettePlugin extends JavaPlugin {
     public void discardRound(Round round) {
         round.abort();
         rounds.remove(round);
+    }
+
+    /** Every table on the server, and who sits where. */
+    public TableManager tables() {
+        return tables;
     }
 
     /** Offers the resource pack and knows who has it. */

@@ -99,6 +99,8 @@ public final class ConfigValidator {
 
         range("wheel.board-numbers", 0, 30);
 
+        chipValues();
+
         oneOf("resource-pack.send", Set.of("table", "join", "never"));
         String url = config.getString("resource-pack.url", "");
         if (!url.isEmpty() && !url.startsWith("https://") && !url.startsWith("http://")) {
@@ -112,6 +114,23 @@ public final class ConfigValidator {
 
         oneOf("updates.channel", Set.of("release", "beta", "alpha"));
         atLeast("updates.interval-hours", 1);
+    }
+
+    /** Six chips, each worth a whole amount above the one before it. */
+    private void chipValues() {
+        String path = "chips.values";
+        if (!config.contains(path)) return;
+        List<?> values = config.getList(path);
+        boolean ok = values != null && values.size() == 6;
+        long last = 0;
+        for (int i = 0; ok && i < values.size(); i++) {
+            Long value = asWhole(values.get(i));
+            ok = value != null && value > last;
+            last = ok ? value : last;
+        }
+        if (!ok) {
+            replace(path, "must be six rising whole amounts above 0", config.get(path), defaults.get(path));
+        }
     }
 
     private void range(String path, long min, long max) {

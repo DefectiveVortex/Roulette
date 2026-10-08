@@ -45,26 +45,29 @@ side, tell your user; do not fix it silently.
 
 ## If you are working on the artwork
 
-If the project skill `roulette-art` (`.claude/skills/roulette-art/`) is present, use it. In short:
+Use the project skill `roulette-art` (`.claude/skills/roulette-art/SKILL.md`). In short:
 
 - **All art work goes through `docs/ART-CONTRACT.md`.** It fixes every file's path, name and size, and the
   measurements the code depends on (felt cell grid, wheel centre, pocket order, ball distances). The code places chips
   and stops the ball by those numbers, not by what is painted, so a picture that ignores them looks wrong in the game
   even when it looks right in an image editor.
 - Every file starts as a generated placeholder with the exact geometry. Paint over it and save under the same name.
-- Check before every commit: `python3 resourcepack/generate_placeholders.py --check` (plain Python 3, nothing to
-  install) must end with "all textures fit the art contract". Then look at the result, not only at the check.
+- Check and look before every commit: `python3 resourcepack/check_art.py --preview preview.png` (plain Python 3,
+  nothing to install; on Windows `py resourcepack\check_art.py --preview preview.png`). Its last line must be "All
+  files fit the art contract." Then open `preview.png`: it draws both table tops with chips, ball and marker in place.
+  Do not commit the preview.
 - Do not edit `pack.mcmeta` or anything under `assets/roulette/models/` and `assets/roulette/items/` by hand: they
   are generated and are overwritten.
 - **The contract can change, but never on one side only.** If a measurement gets in the way of a good design, raise it
-  with Vortex first. An agreed change updates the document, the generator, the checker and the code geometry in one
-  commit.
+  with Vortex first. An agreed change updates the document, `resourcepack/contract.json`, the placeholders and the code
+  geometry in one commit.
 
 ## If you are working on the code
 
-- Anything that draws, places or measures against a texture takes its numbers from the art contract. Do not hard-code
-  a second copy of a contract number: keep one definition and read it (the generator already reads the pocket order
-  and the red numbers from the Java model).
+- Anything that draws, places or measures against a texture takes its numbers from the art contract. The numbers
+  live once, in `resourcepack/contract.json`: the generator and the checker read it, and the Java tests named
+  `ArtContract*` fail when the code's geometry, pocket order or red numbers differ from it. Do not hard-code a second
+  copy.
 - Never touch a texture Ankur committed. The placeholder generator only rewrites files that are still its own output.
 - The outcome of a spin is drawn before the animation starts. Animation, lag or a client never decide a result.
 - Money: a stake is journaled when the chip lands and is refunded exactly once if the round cannot finish. Read
@@ -125,8 +128,8 @@ journal.
 
 ## Rules that are easy to break
 
-- `WheelType.EUROPEAN("...")` / `AMERICAN("...")` and `Pocket.RED = Set.of(...)` are read by
-  `resourcepack/generate_placeholders.py` with regexes. Keep their shape or update the generator in the same commit.
+- The wheel order and the red numbers exist in `resourcepack/contract.json` and in the Java model (`WheelType`,
+  `Pocket`). Change both in the same commit; `display/ArtContractTest` fails otherwise.
 - A new setting goes into `src/main/resources/config.yml` with a comment and, if it has a range or format, into
   `ConfigValidator.configRanges()`. A new message goes into `messages.yml`; code reads it with
   `plugin.config().message(key, "name", value...)`.

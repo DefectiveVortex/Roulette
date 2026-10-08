@@ -38,10 +38,16 @@ version-open-hover: "&7Open the Modrinth page"
 help-header: "&4&lRoulette"
 help-lines:
   - "&e/roulette help &7- This list"
+  - "&e/roulette menu &7- Bet menu, while seated"
+  - "&e/roulette leave &7- Leave your table"
   - "&e/roulette stats [player] &7- Roulette statistics"
   - "&e/roulette top [wagered|won|net|biggest|rounds] &7- The leaderboards"
   - "&e/roulette version &7- Plugin version"
 help-admin-lines:
+  - "&c/roulette create <name> [european|american] &7- Build a table in front of you"
+  - "&c/roulette remove <name> &7- Remove a table"
+  - "&c/roulette list &7- All tables"
+  - "&c/roulette set <name> <setting> <value> &7- Change a table's limits or wheel"
   - "&c/roulette reload &7- Reload config and messages"
   - "&c/roulette update &7- Check for a new version now"
 
@@ -99,3 +105,88 @@ board-green: "&a%number%"
 
 # Shown in the client's "use this resource pack?" question. Empty = the client's default text
 resource-pack-prompt: "&6Roulette &7draws its table, wheel and chips with this pack."
+
+# Tables (/roulette create|remove|list|set, sitting down and leaving)
+table-created: "&aRoulette table &e%table% &acreated. Right-click it or a stool to sit down."
+table-removed: "&aRoulette table &e%table% &aremoved."
+table-exists: "&cThere is already a table called &e%table%&c."
+table-unknown: "&cThere is no table called &e%table%&c."
+table-bad-name: "&cA table name may only have letters, digits, - and _ (at most 32)."
+table-no-room: "&cNot enough room here. A table needs a clear space 10 blocks long, 5 wide and 3 high in front of you."
+table-save-failed: "&cThe table could not be saved to tables.yml. See the console."
+table-usage-create: "&cUse &e/roulette create <name> [european|american]"
+table-usage-remove: "&cUse &e/roulette remove <name>"
+table-usage-set: "&cUse &e/roulette set <name> <setting> <value>&c. Settings: &f%settings%"
+table-set-done: "&aTable &e%table%&a: &f%setting% &ais now &f%value%&a."
+table-set-bad-value: "&c&f%value% &cis not a value &f%setting% &ccan have."
+table-busy: "&cA round is running on &e%table%&c. Try again when the table has cleared."
+table-list-header: "&4&lRoulette &7tables (%count%)"
+table-list-line: "&e%table% &7%wheel%, %world% %x% %y% %z%, &f%min%&7-&f%max%&7, seated %players%/%seats%"
+table-list-empty: "&7There are no roulette tables yet. Create one with &e/roulette create <name>&7."
+table-protected: "&cThis block belongs to the roulette table &e%table%&c. Remove the table with &e/roulette remove %table%&c."
+table-full: "&cEvery stool at this table is taken."
+table-seat-taken: "&cThat stool is taken."
+table-not-seated: "&cYou are not sitting at a roulette table."
+table-left: "&7You left the table."
+# Shown line by line when a player sits down. Use [] to show nothing.
+table-sit-hint:
+  - "&7Look at the felt: &eright-click &7puts your chip on the bet you aim at, &eleft-click &7takes one back."
+  - "&eMouse wheel &7changes the chip, &eF &7opens the bet menu, &esneak &7to leave."
+
+# The chip in the player's hand
+chip-name: "&e%amount% &fchip"
+chip-lore:
+  - "&7Right-click the felt to bet"
+  - "&7Left-click to take a chip back"
+  - "&7Mouse wheel: change chip"
+  - "&7F: bet menu"
+chip-selected: "&7Chip: &e%amount%"
+chip-slot-freed: "&7Your %item% was moved into your inventory to make room for the chip."
+chip-slot-held: "&7Your inventory is full, so your %item% is kept safe until you leave the table."
+chip-no-room: "&cYour inventory is full and your %item% could not be put aside. Use &e/roulette menu &cto bet."
+chip-item-dropped: "&eYour %item% did not fit back into your inventory and was dropped at your feet."
+chip-item-returned: "&aYour %item% was kept for you when the server stopped. Here it is."
+
+# What the player aims at, in the action bar
+aim-spot: "&f%spot% &8| &7pays &f%payout% to 1 &8| &7chip &e%chip%"
+aim-spot-staked: "&f%spot% &8| &7pays &f%payout% to 1 &8| &7yours &a%stake%"
+
+# Names of the bets (%numbers% are the numbers covered, %index% is 1, 2 or 3)
+bet-name-straight: "&f%numbers%"
+bet-name-split: "&fSplit %numbers%"
+bet-name-street: "&fStreet %numbers%"
+bet-name-trio: "&fTrio %numbers%"
+bet-name-corner: "&fCorner %numbers%"
+bet-name-first-four: "&fFirst four %numbers%"
+bet-name-top-line: "&fTop line %numbers%"
+bet-name-six-line: "&fSix line %numbers%"
+bet-name-dozen: "&fDozen %index%"
+bet-name-column: "&fColumn %index%"
+bet-name-red: "&cRed"
+bet-name-black: "&8Black"
+bet-name-odd: "&fOdd"
+bet-name-even: "&fEven"
+bet-name-low: "&f1 to 18"
+bet-name-high: "&f19 to 36"
+
+# The bar above the screen while seated
+hud-idle: "&fPlace a chip to start the round &7(%min% to %max% per bet)"
+hud-betting: "&aPlace your bets &7- &e%seconds%s"
+hud-spinning: "&cNo more bets"
+hud-result: "&fThe ball landed on %number%"
+
+# A win smaller than what was staked in the round
+round-partial: "&7You get &e%amount% &7back."
+
+# The bet menu (F while seated, or /roulette menu)
+menu-title: "Roulette - %table%"
+menu-lore-pays: "&7Pays &f%payout% to 1"
+menu-lore-yours: "&7Your chips here: &a%amount%"
+menu-lore-place: "&eLeft-click &7to put &f%chip% &7here"
+menu-lore-take: "&eRight-click &7to take &f%chip% &7back"
+menu-chip-lore:
+  - "&eLeft-click &7for a bigger chip"
+  - "&eRight-click &7for a smaller chip"
+menu-info-staked: "&7Your chips on the table: &a%amount%"
+menu-info-limits: "&7Per bet: &f%min% &7to &f%max%"
+menu-close: "&cClose"
