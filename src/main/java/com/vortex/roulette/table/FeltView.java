@@ -43,10 +43,11 @@ final class FeltView implements TableAttachment {
     private static final double CHIP_STEP = 1 / 256.0;
     private static final double MARKER_LIFT = 12 / 128.0;
 
-    /** Sizes in felt cells. */
-    private static final double CHIP_SIZE = 0.45;
-    private static final double MARKER_SIZE = 0.6;
-    private static final double LINE_HIGHLIGHT = 0.55;
+    /** Sizes in felt cells, the same as resourcepack/contract.json small.shown_cells (FeltContractTest). */
+    static final double CHIP_SIZE = 0.45;
+    static final double MARKER_SIZE = 0.5;
+    static final double LINE_HIGHLIGHT = 0.6;
+    /** On a cell bet the highlight is stretched to this share of the cell instead. */
     private static final double CELL_HIGHLIGHT = 0.92;
     /** Chips of several players on one spot stand on a ring this far from it. */
     private static final double SHARE_RADIUS = 0.2;
