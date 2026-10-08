@@ -2,10 +2,11 @@ package com.vortex.roulette.display;
 
 import com.vortex.roulette.RoulettePlugin;
 import com.vortex.roulette.game.Round;
-import com.vortex.roulette.game.RoundListener;
 import com.vortex.roulette.game.RoundResult;
 import com.vortex.roulette.model.Pocket;
 import com.vortex.roulette.model.WheelType;
+import com.vortex.roulette.table.TableAttachment;
+import com.vortex.roulette.table.TableAttachmentFactory;
 import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -30,10 +31,7 @@ import org.joml.Vector3f;
  * real turn between two updates. The ball's model holds the ball away from its centre (see the pack generator),
  * so a rotation swings it along the track; only its fall towards the pockets uses a translation.
  */
-public final class WheelView implements RoundListener {
-
-    /** On every entity of the plugin, so a sweep after a crash finds them. */
-    public static final String TAG = "roulette";
+public final class WheelView implements TableAttachment {
 
     /** Blocks the wheel picture covers. */
     static final float WIDTH = 3f;
@@ -66,6 +64,11 @@ public final class WheelView implements RoundListener {
     private SoundSpec pocketSound;
     private SoundSpec restSound;
 
+    /** One wheel per table. Register with {@code TableManager.addAttachment}. */
+    public static TableAttachmentFactory factory(RoulettePlugin plugin) {
+        return table -> new WheelView(plugin, table.wheel(), table.wheelCentre(), table.displayYaw());
+    }
+
     /**
      * @param centre the middle of the 3 x 3 wheel area, at the height of the table top
      * @param yaw    the entity yaw that turns the felt picture's +x onto the direction the layout runs in
@@ -80,6 +83,7 @@ public final class WheelView implements RoundListener {
     }
 
     /** Spawns the wheel. Safe to call again. */
+    @Override
     public void show() {
         shown = true;
         if (ready()) {
@@ -89,6 +93,7 @@ public final class WheelView implements RoundListener {
     }
 
     /** Removes every entity. The rotor keeps its angle for the next time; the ball is put away. */
+    @Override
     public void hide() {
         shown = false;
         rotorAngle = currentRotorAngle();
@@ -227,7 +232,7 @@ public final class WheelView implements RoundListener {
             display.setItemDisplayTransform(ItemDisplay.ItemDisplayTransform.NONE);
             display.setBrightness(new Display.Brightness(15, 15));
             display.setPersistent(false);
-            display.addScoreboardTag(TAG);
+            display.addScoreboardTag(ENTITY_TAG);
         });
     }
 
