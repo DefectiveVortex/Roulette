@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -48,6 +49,8 @@ public final class ConfigManager {
         // Limits that parse but cannot work together (a payout cap under a straight-up win, a bet too large to
         // pay out exactly) are reported once here; defaultRules() applies the same repairs silently.
         limits(message -> log.warning("config.yml: table." + message));
+        blockMaterial(log, "build.table-block", bundled);
+        blockMaterial(log, "build.stool-block", bundled);
         this.messages = loadMessages(log);
         return log.problems();
     }
@@ -77,6 +80,17 @@ public final class ConfigManager {
         ConfigValidator.validateTypes(loaded, bundled == null ? english : parse(bundled), fileName, log);
         loaded.setDefaults(english);
         return loaded;
+    }
+
+    /** A table can only be built from blocks; anything else is reported and replaced by the default in memory. */
+    private void blockMaterial(Logger log, String path, String bundled) {
+        String name = config.getString(path, "");
+        Material material = Material.matchMaterial(name);
+        if (material == null || !material.isBlock()) {
+            Object fallback = bundled == null ? null : parse(bundled).get(path);
+            log.warning("config.yml: " + path + " \"" + name + "\" is not a block; using " + fallback + ".");
+            config.set(path, fallback);
+        }
     }
 
     private static YamlConfiguration parse(String text) {

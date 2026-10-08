@@ -166,6 +166,22 @@ class ConfigFilesTest {
     }
 
     @Test
+    void chipValuesMustBeSixRisingAmounts() {
+        YamlConfiguration defaults = yaml(bundled("config.yml"));
+        for (List<?> bad : List.of(List.of(10, 50, 100), List.of(10, 50, 50, 250, 500, 1000),
+                List.of(0, 50, 100, 250, 500, 1000), List.of(10, 50, "x", 250, 500, 1000))) {
+            YamlConfiguration config = yaml(bundled("config.yml"));
+            config.set("chips.values", bad);
+            assertEquals(1, ConfigValidator.validateConfig(config, defaults, log), bad.toString());
+            assertEquals(List.of(10L, 50L, 100L, 250L, 500L, 1000L), config.getLongList("chips.values"));
+        }
+        YamlConfiguration config = yaml(bundled("config.yml"));
+        config.set("chips.values", List.of(1, 2, 5, 10, 20, 50));
+        assertEquals(0, ConfigValidator.validateConfig(config, defaults, log));
+        assertEquals(List.of(1L, 2L, 5L, 10L, 20L, 50L), config.getLongList("chips.values"));
+    }
+
+    @Test
     void aMaximumUnderTheMinimumIsRaisedToIt() {
         YamlConfiguration config = yaml(bundled("config.yml"));
         config.set("table.wheel", "AMERICAN");
