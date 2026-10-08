@@ -2,6 +2,7 @@ package com.vortex.roulette.display;
 
 import com.vortex.roulette.RoulettePlugin;
 import com.vortex.roulette.model.Pocket;
+import com.vortex.roulette.table.TableAttachment;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Locale;
@@ -40,7 +41,7 @@ final class NumberBoard {
                 board.setBillboard(Display.Billboard.VERTICAL);
                 board.setBrightness(new Display.Brightness(15, 15));
                 board.setPersistent(false);
-                board.addScoreboardTag(WheelView.TAG);
+                board.addScoreboardTag(TableAttachment.ENTITY_TAG);
             });
             write();
         }
