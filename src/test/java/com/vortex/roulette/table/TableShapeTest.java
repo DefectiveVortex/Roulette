@@ -21,7 +21,15 @@ class TableShapeTest {
 
     @Test
     void sizesFollowTheArtContract() {
-        assertEquals(0.375, TableShape.BLOCKS_PER_CELL);
+        com.google.gson.JsonObject contract = com.vortex.roulette.ArtContract.load();
+        com.google.gson.JsonObject world = contract.getAsJsonObject("world");
+        assertEquals(world.get("blocks_per_cell").getAsDouble(), TableShape.BLOCKS_PER_CELL);
+        assertEquals(world.get("wheel_blocks").getAsInt(), TableShape.WHEEL_LENGTH);
+        assertEquals(TableShape.WIDTH, FeltLayout.CANVAS_HEIGHT * TableShape.BLOCKS_PER_CELL);
+        com.google.gson.JsonObject shown = contract.getAsJsonObject("small").getAsJsonObject("shown_cells");
+        assertEquals(shown.get("chip").getAsDouble(), FeltView.CHIP_SIZE);
+        assertEquals(shown.get("marker").getAsDouble(), FeltView.MARKER_SIZE);
+        assertEquals(shown.get("highlight").getAsDouble(), FeltView.LINE_HIGHLIGHT);
         assertEquals(27, TableShape.top().size());
         assertEquals(7, TableShape.seats().size());
     }
