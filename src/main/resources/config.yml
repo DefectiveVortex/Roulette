@@ -42,3 +42,16 @@ stats:
   # How often changed statistics are written to stats.yml, in minutes (they are also written on shutdown).
   # 1 to 1440.
   save-minutes: 5
+
+chips:
+  # What each of the six chips is worth, lowest first. Six rising whole amounts. A seated player changes
+  # chip with the mouse wheel; a chip below a table's min-bet cannot open a bet there.
+  values: [10, 50, 100, 250, 500, 1000]
+
+build:
+  # What a new table is built from. An existing table keeps its blocks; /roulette remove only clears blocks
+  # that are still these materials.
+  table-block: GREEN_TERRACOTTA
+  # Stairs are placed upside down and slabs as top slabs, so the seat is always a full block high: seated
+  # players need to look down onto the felt to aim.
+  stool-block: DARK_OAK_STAIRS
