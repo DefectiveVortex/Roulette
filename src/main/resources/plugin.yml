@@ -19,6 +19,10 @@ permissions:
     default: op
     children:
       roulette.play: true
+      roulette.stats.others: true
   roulette.play:
     description: Sit at roulette tables and bet
     default: true
+  roulette.stats.others:
+    description: View other players' roulette statistics
+    default: op

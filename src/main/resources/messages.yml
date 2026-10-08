@@ -17,15 +17,33 @@ currency-format: "$%amount%"
 economy-unavailable: "&cThe economy isn't available right now. Is Vault and an economy plugin installed?"
 reload-done: "&aRoulette configuration reloaded."
 reload-warnings: "&eRoulette configuration reloaded with %count% warning(s). See the console."
-version: "&7Roulette &f%version%"
+
+# Version and updates (/roulette version, /roulette update)
+version-current: "&7Roulette version &e%version%"
+version-update-available: "&eA new version is available: &a%latest% &7(you have %version%)"
+version-up-to-date: "&aYou're running the latest version."
+version-check-failed: "&7Couldn't check for updates right now."
+version-latest: "&7Latest on Modrinth (%channel%): &e%latest%"
+version-update-downloaded: "&aRoulette %latest% downloaded; restart the server to apply."
+version-download-failed: "&cCouldn't download Roulette %latest%. &7See the console."
+version-not-checked: "&7No update check has run yet."
+version-checks-disabled: "&7Update checks are off (updates.check in config.yml)."
+version-not-published: "&7This build has no Modrinth page to check yet."
+version-checking: "&7Checking Modrinth for updates..."
+version-admin-notice: "&eA new Roulette version is out: &a%latest% &7(you have %version%) "
+version-open-button: "&b[View on Modrinth]"
+version-open-hover: "&7Open the Modrinth page"
 
 # Help (/roulette help)
 help-header: "&4&lRoulette"
 help-lines:
   - "&e/roulette help &7- This list"
+  - "&e/roulette stats [player] &7- Roulette statistics"
+  - "&e/roulette top [wagered|won|net|biggest|rounds] &7- The leaderboards"
   - "&e/roulette version &7- Plugin version"
 help-admin-lines:
   - "&c/roulette reload &7- Reload config and messages"
+  - "&c/roulette update &7- Check for a new version now"
 
 # Why a chip could not be placed or taken back
 bet-closed: "&cNo more bets."
@@ -49,6 +67,28 @@ round-refunded: "&7Your chips were returned: &e%amount%&7."
 number-red: "&c%number%"
 number-black: "&8%number%"
 number-green: "&a%number%"
+
+# Money that could not be handed over at once (the economy refused), and its arrival later
+money-kept: "&eYour &f%amount% &ecould not be paid right now. It is kept for you and paid as soon as the economy accepts it."
+money-returned: "&aRoulette paid you &e%amount% &athat was still owed to you."
+
+# Statistics (/roulette stats [player], /roulette top [wagered|won|net|biggest|rounds])
+stats-header: "&4&lRoulette &7statistics of &f%player%"
+stats-lines:
+  - "&7Rounds: &f%rounds%&7, won &f%wins% &7(&f%win_rate%%&7)"
+  - "&7Wagered: &e%wagered%&7, paid out: &e%won%"
+  - "&7Net: %net%&7, biggest win: &e%biggest_win%"
+stats-none: "&7%player% hasn't finished a round of roulette yet."
+stats-console: "&cFrom the console, name a player: &e/roulette stats <player>"
+top-header: "&4&lRoulette &7top %count% by %ranking%"
+top-line: "&7%rank%. &f%player% &7- &e%value%"
+top-empty: "&7Nobody has finished a round of roulette yet."
+top-usage: "&cUse &e/roulette top [wagered|won|net|biggest|rounds]"
+top-ranking-wagered: "money wagered"
+top-ranking-won: "money paid out"
+top-ranking-net: "net winnings"
+top-ranking-biggest: "biggest single win"
+top-ranking-rounds: "rounds played"
 
 # The board of recent numbers above the wheel (newest first). Black is shown light: the board is dark
 board-title: "&6Last numbers"

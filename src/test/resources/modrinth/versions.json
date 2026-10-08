@@ -1,0 +1,178 @@
+[
+  {
+    "game_versions": ["1.21.4", "1.21.5"],
+    "loaders": ["paper", "purpur"],
+    "id": "a1Alpha0",
+    "project_id": "TESTPROJ",
+    "author_id": "Vx0Auth0",
+    "featured": false,
+    "name": "Roulette 1.3.0-alpha.1",
+    "version_number": "1.3.0-alpha.1",
+    "changelog": null,
+    "changelog_url": null,
+    "date_published": "2026-10-20T09:00:00.000000Z",
+    "downloads": 3,
+    "version_type": "alpha",
+    "status": "listed",
+    "requested_status": null,
+    "files": [
+      {
+        "hashes": {"sha512": "aa11", "sha1": "bb22"},
+        "url": "https://cdn.modrinth.com/data/TESTPROJ/versions/a1Alpha0/Roulette-1.3.0-alpha.1.jar",
+        "filename": "Roulette-1.3.0-alpha.1.jar",
+        "primary": true,
+        "size": 412345,
+        "file_type": null
+      }
+    ],
+    "dependencies": []
+  },
+  {
+    "game_versions": ["1.20.1", "1.21.4"],
+    "loaders": ["bukkit", "spigot", "paper", "purpur"],
+    "id": "b1Beta00",
+    "project_id": "TESTPROJ",
+    "author_id": "Vx0Auth0",
+    "featured": false,
+    "name": "Roulette 1.2.0-beta.2",
+    "version_number": "1.2.0-beta.2",
+    "changelog": "Beta",
+    "changelog_url": null,
+    "date_published": "2026-10-15T09:00:00.000000Z",
+    "downloads": 12,
+    "version_type": "beta",
+    "status": "listed",
+    "requested_status": null,
+    "files": [
+      {
+        "hashes": {"sha512": "cc33", "sha1": "dd44"},
+        "url": "https://cdn.modrinth.com/data/TESTPROJ/versions/b1Beta00/Roulette-1.2.0-beta.2.jar",
+        "filename": "Roulette-1.2.0-beta.2.jar",
+        "primary": true,
+        "size": 410000,
+        "file_type": null
+      }
+    ],
+    "dependencies": []
+  },
+  {
+    "game_versions": ["26.3"],
+    "loaders": ["paper"],
+    "id": "r3Only26",
+    "project_id": "TESTPROJ",
+    "author_id": "Vx0Auth0",
+    "featured": true,
+    "name": "Roulette 1.1.2 (26.3 only)",
+    "version_number": "1.1.2",
+    "changelog": "",
+    "changelog_url": null,
+    "date_published": "2026-10-12T09:00:00.000000Z",
+    "downloads": 40,
+    "version_type": "release",
+    "status": "listed",
+    "requested_status": null,
+    "files": [
+      {
+        "hashes": {"sha512": "ee55", "sha1": "ff66"},
+        "url": "https://cdn.modrinth.com/data/TESTPROJ/versions/r3Only26/Roulette-1.1.2.jar",
+        "filename": "Roulette-1.1.2.jar",
+        "primary": true,
+        "size": 409000,
+        "file_type": null
+      }
+    ],
+    "dependencies": []
+  },
+  {
+    "game_versions": ["1.20.1", "1.21.4", "26.3"],
+    "loaders": ["bukkit", "spigot", "paper", "purpur"],
+    "id": "r2Rel110",
+    "project_id": "TESTPROJ",
+    "author_id": "Vx0Auth0",
+    "featured": true,
+    "name": "Roulette 1.1.0",
+    "version_number": "1.1.0",
+    "changelog": "",
+    "changelog_url": null,
+    "date_published": "2026-10-10T09:00:00.000000Z",
+    "downloads": 90,
+    "version_type": "release",
+    "status": "listed",
+    "requested_status": null,
+    "files": [
+      {
+        "hashes": {"sha512": "0011", "sha1": "2233"},
+        "url": "https://cdn.modrinth.com/data/TESTPROJ/versions/r2Rel110/Roulette-1.1.0-sources.zip",
+        "filename": "Roulette-1.1.0-sources.zip",
+        "primary": false,
+        "size": 90000,
+        "file_type": null
+      },
+      {
+        "hashes": {"sha512": "4455", "sha1": "6677"},
+        "url": "https://cdn.modrinth.com/data/TESTPROJ/versions/r2Rel110/Roulette-1.1.0.jar",
+        "filename": "Roulette-1.1.0.jar",
+        "primary": true,
+        "size": 408000,
+        "file_type": null
+      }
+    ],
+    "dependencies": [{"version_id": null, "project_id": "vault0000", "file_name": null, "dependency_type": "required"}]
+  },
+  {
+    "game_versions": ["1.21.4"],
+    "loaders": ["fabric"],
+    "id": "f9Fabric",
+    "project_id": "TESTPROJ",
+    "author_id": "Vx0Auth0",
+    "featured": false,
+    "name": "Not for Bukkit",
+    "version_number": "9.9.9",
+    "changelog": "",
+    "changelog_url": null,
+    "date_published": "2026-10-11T09:00:00.000000Z",
+    "downloads": 0,
+    "version_type": "release",
+    "status": "listed",
+    "requested_status": null,
+    "files": [
+      {
+        "hashes": {"sha512": "8899", "sha1": "aabb"},
+        "url": "https://cdn.modrinth.com/data/TESTPROJ/versions/f9Fabric/roulette-fabric.jar",
+        "filename": "roulette-fabric.jar",
+        "primary": true,
+        "size": 1000,
+        "file_type": null
+      }
+    ],
+    "dependencies": []
+  },
+  {
+    "game_versions": ["1.20.1", "1.21.4", "26.3"],
+    "loaders": ["paper", "spigot"],
+    "id": "r1Rel100",
+    "project_id": "TESTPROJ",
+    "author_id": "Vx0Auth0",
+    "featured": false,
+    "name": "Roulette 1.0",
+    "version_number": "1.0",
+    "changelog": "First release",
+    "changelog_url": null,
+    "date_published": "2026-10-01T09:00:00.000000Z",
+    "downloads": 150,
+    "version_type": "release",
+    "status": "listed",
+    "requested_status": null,
+    "files": [
+      {
+        "hashes": {"sha512": "ccdd", "sha1": "eeff"},
+        "url": "https://cdn.modrinth.com/data/TESTPROJ/versions/r1Rel100/Roulette-1.0.jar",
+        "filename": "Roulette-1.0.jar",
+        "primary": true,
+        "size": 400000,
+        "file_type": null
+      }
+    ],
+    "dependencies": []
+  }
+]

@@ -1,5 +1,6 @@
 package com.vortex.roulette.config;
 
+import com.vortex.roulette.economy.TableLimits;
 import com.vortex.roulette.game.PlaceResult;
 import com.vortex.roulette.game.TableRules;
 import com.vortex.roulette.model.Pocket;
@@ -44,6 +45,9 @@ public final class ConfigManager {
             ConfigValidator.validateConfig(loaded, parse(bundled), log);
         }
         this.config = loaded;
+        // Limits that parse but cannot work together (a payout cap under a straight-up win, a bet too large to
+        // pay out exactly) are reported once here; defaultRules() applies the same repairs silently.
+        limits(message -> log.warning("config.yml: table." + message));
         this.messages = loadMessages(log);
         return log.problems();
     }
@@ -101,13 +105,21 @@ public final class ConfigManager {
     public TableRules defaultRules() {
         WheelType wheel = "american".equalsIgnoreCase(config.getString("table.wheel"))
             ? WheelType.AMERICAN : WheelType.EUROPEAN;
-        long min = Math.max(1, config.getLong("table.min-bet", 10));
-        long max = Math.max(min, config.getLong("table.max-bet", 1000));
-        long maxPayout = Math.max(0, config.getLong("table.max-payout", 50000));
-        return new TableRules(wheel, min, max, maxPayout,
+        TableLimits limits = limits(message -> {});
+        return new TableRules(wheel, limits.minBet(), limits.maxBet(), limits.maxPayout(),
             20 * Math.max(5, config.getInt("table.betting-seconds", 30)),
             20 * Math.max(3, config.getInt("table.spin-seconds", 8)),
             20 * Math.max(1, config.getInt("table.result-seconds", 5)));
+    }
+
+    private TableLimits limits(java.util.function.Consumer<String> warn) {
+        return TableLimits.of(config.getLong("table.min-bet", 10), config.getLong("table.max-bet", 1000),
+            config.getLong("table.max-payout", 50000), warn);
+    }
+
+    /** Minutes between background saves of the statistics. */
+    public int statsSaveMinutes() {
+        return Math.max(1, Math.min(1440, config.getInt("stats.save-minutes", 5)));
     }
 
     public boolean checkForUpdates() {

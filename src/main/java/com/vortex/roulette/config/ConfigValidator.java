@@ -95,6 +95,8 @@ public final class ConfigValidator {
         range("table.spin-seconds", 3, 30);
         range("table.result-seconds", 1, 60);
 
+        range("stats.save-minutes", 1, 1440);
+
         oneOf("updates.channel", Set.of("release", "beta", "alpha"));
         atLeast("updates.interval-hours", 1);
     }

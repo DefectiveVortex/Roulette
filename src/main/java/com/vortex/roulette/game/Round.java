@@ -134,7 +134,7 @@ public final class Round {
         if (rules.maxPayout() > 0 && bestWin(player, spot, amount) > rules.maxPayout()) {
             return PlaceResult.ABOVE_MAX_PAYOUT;
         }
-        if (!bank.reserve(roundId, player, amount)) {
+        if (!reserve(player, amount)) {
             return PlaceResult.INSUFFICIENT_FUNDS;
         }
         if (phase == RoundPhase.IDLE) {
@@ -196,14 +196,31 @@ public final class Round {
             for (UUID player : new ArrayList<>(bets.keySet())) {
                 long staked = stakeOf(player);
                 if (staked > 0) {
-                    bank.refund(roundId, player, staked);
+                    try {
+                        bank.refund(roundId, player, staked);
+                    } catch (RuntimeException e) {
+                        LOG.log(Level.SEVERE, "Roulette: refunding " + staked + " to " + player + " failed", e);
+                    }
                 }
             }
         }
         clear();
     }
 
+    /** A bank that throws took nothing as far as the round is concerned. */
+    private boolean reserve(UUID player, long amount) {
+        try {
+            return bank.reserve(roundId, player, amount);
+        } catch (RuntimeException e) {
+            LOG.log(Level.SEVERE, "Roulette: taking a stake of " + amount + " from " + player + " failed", e);
+            return false;
+        }
+    }
+
     private void removeStake(UUID player, BetSpot spot, long onSpot, long left) {
+        long removed = onSpot - left;
+        // Refund first: if the bank throws, the chips are still on the table and nothing is lost.
+        bank.refund(roundId, player, removed);
         Map<BetSpot, Long> own = bets.get(player);
         if (left == 0) {
             own.remove(spot);
@@ -213,8 +230,6 @@ public final class Round {
         } else {
             own.put(spot, left);
         }
-        long removed = onSpot - left;
-        bank.refund(roundId, player, removed);
         fire(l -> l.betRemoved(this, player, spot, removed, left));
     }
 
@@ -264,7 +279,12 @@ public final class Round {
                 staked += stake;
                 payout += back;
             }
-            bank.pay(roundId, entry.getKey(), staked, payout);
+            try {
+                bank.pay(roundId, entry.getKey(), staked, payout);
+            } catch (RuntimeException e) {
+                // The others must still be paid and the table must clear. The stake stays reserved in the bank.
+                LOG.log(Level.SEVERE, "Roulette: paying " + payout + " to " + entry.getKey() + " failed", e);
+            }
             players.add(new RoundResult.PlayerResult(entry.getKey(), staked, payout, List.copyOf(outcomes)));
         }
         RoundResult summary = new RoundResult(roundId, result, List.copyOf(players));
