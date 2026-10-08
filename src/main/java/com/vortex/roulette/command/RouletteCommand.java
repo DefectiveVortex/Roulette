@@ -31,8 +31,14 @@ public final class RouletteCommand implements TabExecutor {
                     config.messageList("help-admin-lines").forEach(sender::sendMessage);
                 }
             }
-            case "version" -> sender.sendMessage(
-                config.prefixed("version", "version", plugin.getPluginMeta().getVersion()));
+            case "version" -> plugin.updates().sendStatus(sender);
+            case "update" -> {
+                if (!sender.hasPermission(ADMIN)) {
+                    sender.sendMessage(config.prefixed("no-permission"));
+                    return true;
+                }
+                plugin.updates().checkNow(sender);
+            }
             case "reload" -> {
                 if (!sender.hasPermission(ADMIN)) {
                     sender.sendMessage(config.prefixed("no-permission"));
@@ -56,6 +62,7 @@ public final class RouletteCommand implements TabExecutor {
         List<String> options = new ArrayList<>(List.of("help", "version"));
         if (sender.hasPermission(ADMIN)) {
             options.add("reload");
+            options.add("update");
         }
         String typed = args[0].toLowerCase(Locale.ROOT);
         return options.stream().filter(option -> option.startsWith(typed)).toList();

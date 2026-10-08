@@ -17,7 +17,22 @@ currency-format: "$%amount%"
 economy-unavailable: "&cThe economy isn't available right now. Is Vault and an economy plugin installed?"
 reload-done: "&aRoulette configuration reloaded."
 reload-warnings: "&eRoulette configuration reloaded with %count% warning(s). See the console."
-version: "&7Roulette &f%version%"
+
+# Version and updates (/roulette version, /roulette update)
+version-current: "&7Roulette version &e%version%"
+version-update-available: "&eA new version is available: &a%latest% &7(you have %version%)"
+version-up-to-date: "&aYou're running the latest version."
+version-check-failed: "&7Couldn't check for updates right now."
+version-latest: "&7Latest on Modrinth (%channel%): &e%latest%"
+version-update-downloaded: "&aRoulette %latest% downloaded; restart the server to apply."
+version-download-failed: "&cCouldn't download Roulette %latest%. &7See the console."
+version-not-checked: "&7No update check has run yet."
+version-checks-disabled: "&7Update checks are off (updates.check in config.yml)."
+version-not-published: "&7This build has no Modrinth page to check yet."
+version-checking: "&7Checking Modrinth for updates..."
+version-admin-notice: "&eA new Roulette version is out: &a%latest% &7(you have %version%) "
+version-open-button: "&b[View on Modrinth]"
+version-open-hover: "&7Open the Modrinth page"
 
 # Help (/roulette help)
 help-header: "&4&lRoulette"
@@ -26,6 +41,7 @@ help-lines:
   - "&e/roulette version &7- Plugin version"
 help-admin-lines:
   - "&c/roulette reload &7- Reload config and messages"
+  - "&c/roulette update &7- Check for a new version now"
 
 # Why a chip could not be placed or taken back
 bet-closed: "&cNo more bets."
