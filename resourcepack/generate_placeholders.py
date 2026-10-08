@@ -3,6 +3,7 @@
 
     python3 resourcepack/generate_placeholders.py           # write placeholders, models, item definitions
     python3 resourcepack/generate_placeholders.py --check   # check every texture against docs/ART-CONTRACT.md
+    python3 resourcepack/generate_placeholders.py --zip     # pack the whole thing: target/Roulette-Textures.zip
 
 Pure Python 3, nothing to install. The geometry is the one in docs/ART-CONTRACT.md; the pocket order and the red
 numbers are read from the Java model, so there is no second copy of them here.
@@ -18,6 +19,7 @@ import math
 import re
 import struct
 import sys
+import zipfile
 import zlib
 from pathlib import Path
 
@@ -506,9 +508,25 @@ def check():
     return 1 if problems else 0
 
 
+def build_zip():
+    """The pack as players download it. Same input gives the same bytes, so the SHA-1 only changes with the art."""
+    out = REPO / "target/Roulette-Textures.zip"
+    out.parent.mkdir(exist_ok=True)
+    files = [PACK / "pack.mcmeta", PACK / "pack.png"] + sorted(p for p in (PACK / "assets").rglob("*") if p.is_file())
+    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
+        for path in files:
+            info = zipfile.ZipInfo(path.relative_to(PACK).as_posix(), date_time=(2026, 1, 1, 0, 0, 0))
+            info.compress_type = zipfile.ZIP_DEFLATED
+            info.external_attr = 0o644 << 16
+            z.writestr(info, path.read_bytes())
+    print(f"{out}\n{len(files)} files, {out.stat().st_size} bytes\nsha1: {hashlib.sha1(out.read_bytes()).hexdigest()}")
+
+
 if __name__ == "__main__":
     if sys.argv[1:] == ["--check"]:
         sys.exit(check())
+    if sys.argv[1:] == ["--zip"]:
+        sys.exit(build_zip())
     if sys.argv[1:]:
         sys.exit(__doc__)
     generate()

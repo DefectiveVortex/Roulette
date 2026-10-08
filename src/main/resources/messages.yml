@@ -56,3 +56,6 @@ board-empty: "&7-"
 board-red: "&c%number%"
 board-black: "&f%number%"
 board-green: "&a%number%"
+
+# Shown in the client's "use this resource pack?" question. Empty = the client's default text
+resource-pack-prompt: "&6Roulette &7draws its table, wheel and chips with this pack."

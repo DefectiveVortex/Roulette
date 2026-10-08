@@ -41,6 +41,17 @@ wheel:
     # The ball coming to rest
     rest: "block.stone_button.click_off 0.7 0.9"
 
+# The Roulette textures (felt, wheel, chips). The plugin does not host the zip: put a link to it here.
+# The pack is added on top of your server resource pack, it does not replace it.
+resource-pack:
+  # When players are offered it: table (the first time they sit down), join (when they log in) or never
+  send: table
+  url: ""
+  # The zip's SHA-1, so clients keep their copy until the file changes. Empty = download every session
+  sha1: ""
+  # true kicks players who decline the pack
+  required: false
+
 updates:
   # Look for new Roulette versions on Modrinth at startup and every interval-hours
   check: true
