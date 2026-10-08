@@ -2,11 +2,10 @@
 """Placeholder art and the generated pack files for the Roulette resource pack.
 
     python3 resourcepack/generate_placeholders.py           # write placeholders, models, item definitions
-    python3 resourcepack/generate_placeholders.py --check   # check every texture against docs/ART-CONTRACT.md
     python3 resourcepack/generate_placeholders.py --zip     # pack the whole thing: target/Roulette-Textures.zip
 
-Pure Python 3, nothing to install. The geometry is the one in docs/ART-CONTRACT.md; the pocket order and the red
-numbers are read from the Java model, so there is no second copy of them here.
+Pure Python 3, nothing to install. Every number comes from contract.json (the numbers of docs/ART-CONTRACT.md);
+check_art.py, next to this file, checks the result and anybody's own art against the same file.
 
 A texture is only written when it is missing or still byte-for-byte what this script wrote last time (sha256 in
 placeholders.json). A file an artist saved over a placeholder no longer matches and is never touched again.
@@ -16,26 +15,26 @@ rewritten on every run.
 import hashlib
 import json
 import math
-import re
-import struct
 import sys
 import zipfile
-import zlib
-from pathlib import Path
 
-PACK = Path(__file__).resolve().parent
-REPO = PACK.parent
-MODEL_SRC = REPO / "src/main/java/com/vortex/roulette/model"
-TEXTURES = PACK / "assets/roulette/textures/item"
-MANIFEST = PACK / "placeholders.json"
+sys.dont_write_bytecode = True   # no __pycache__ next to the art
+import check_art  # noqa: E402
+from check_art import CONTRACT, MANIFEST, PACK, REPO, TEXTURES
 
-# ---- geometry (docs/ART-CONTRACT.md) -------------------------------------------------------------------------
-CELL = 64
-FELT_W, FELT_H = 16 * CELL, 8 * CELL
-GRID_X, GRID_Y = 1 * CELL, 96          # grid origin: cell (1, 1.5) of the canvas
-WHEEL = 512
-R_HUB, R_CONE, R_POCKETS, R_NUMBERS, R_TRACK, R_RIM = 44, 132, 176, 208, 232, 240
-SMALL = 32
+# ---- geometry: contract.json ---------------------------------------------------------------------------------
+FELT_C, WHEEL_C = CONTRACT["felt"], CONTRACT["wheel"]
+CELL = FELT_C["cell"]
+FELT_W, FELT_H = FELT_C["size"]
+GRID_X, GRID_Y = (round(c * CELL) for c in FELT_C["grid_origin_cells"])
+WHEEL = WHEEL_C["size"][0]
+R_HUB, R_CONE, R_POCKETS, R_NUMBERS, R_TRACK, R_RIM = (
+    WHEEL_C["radii"][ring] for ring in ("hub", "cone", "pockets", "numbers", "track", "rim"))
+SMALL = CONTRACT["small"]["size"][0]
+REDS = set(CONTRACT["red"])
+FELT_LABELS = {"column_1": "2TO1", "column_2": "2TO1", "column_3": "2TO1", "dozen_1": "1ST 12",
+               "dozen_2": "2ND 12", "dozen_3": "3RD 12", "low": "1-18", "even": "EVEN", "red": "RED",
+               "black": "BLACK", "odd": "ODD", "high": "19-36"}
 
 # ---- colours -------------------------------------------------------------------------------------------------
 CLOTH = (14, 100, 58)
@@ -83,29 +82,10 @@ def text_bits(text):
     return rows
 
 
-# ---- the Java model is the single source for pocket order and colours ------------------------------------------
-def read_model():
-    wheel_src = (MODEL_SRC / "WheelType.java").read_text()
-    pocket_src = (MODEL_SRC / "Pocket.java").read_text()
-    orders = {}
-    for name in ("EUROPEAN", "AMERICAN"):
-        m = re.search(name + r'\("([0-9 ]+)"\)', wheel_src)
-        if not m:
-            sys.exit(f"cannot find the {name} pocket order in WheelType.java")
-        orders[name.lower()] = m.group(1).split()
-    m = re.search(r"RED\s*=\s*Set\.of\(([0-9,\s]+)\)", pocket_src)
-    if not m:
-        sys.exit("cannot find the red numbers in Pocket.java")
-    reds = {int(n) for n in m.group(1).split(",")}
-    if (len(orders["european"]), len(orders["american"]), len(reds)) != (37, 38, 18):
-        sys.exit("pocket order or red set has the wrong size")
-    return orders, reds
-
-
-def pocket_colour(label, reds):
+def pocket_colour(label):
     if label in ("0", "00"):
         return GREEN
-    return RED if int(label) in reds else BLACK
+    return RED if int(label) in REDS else BLACK
 
 
 # ---- a small RGBA canvas ---------------------------------------------------------------------------------------
@@ -153,13 +133,7 @@ class Canvas:
                 o += 4
 
     def png(self):
-        raw = b"".join(b"\0" + bytes(self.px[y * self.w * 4:(y + 1) * self.w * 4]) for y in range(self.h))
-
-        def chunk(kind, data):
-            return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", zlib.crc32(kind + data))
-
-        return (b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", self.w, self.h, 8, 6, 0, 0, 0))
-                + chunk(b"IDAT", zlib.compress(raw, 9)) + chunk(b"IEND", b""))
+        return check_art.png_bytes(self.w, self.h, self.px)
 
 
 def shade(rgb, f):
@@ -167,27 +141,14 @@ def shade(rgb, f):
 
 
 # ---- felt ------------------------------------------------------------------------------------------------------
-def felt(american, reds):
+def felt(wheel):
     c = Canvas(FELT_W, FELT_H, CLOTH)
     cells = []  # (x0, y0, x1, y1, fill, label)
-
-    def cell(u0, v0, u1, v1, fill, label):
+    for name, (u0, v0, u1, v1) in {**FELT_C["zero_cells"][wheel], **FELT_C["cells"]}.items():
+        numbered = name not in FELT_LABELS
+        fill = pocket_colour(name) if numbered else {"red": RED, "black": BLACK}.get(name)
         cells.append((GRID_X + round(u0 * CELL), GRID_Y + round(v0 * CELL),
-                      GRID_X + round(u1 * CELL), GRID_Y + round(v1 * CELL), fill, label))
-
-    if american:
-        cell(0, 0, 1, 1.5, GREEN, "00")
-        cell(0, 1.5, 1, 3, GREEN, "0")
-    else:
-        cell(0, 0, 1, 3, GREEN, "0")
-    for n in range(1, 37):
-        s, t = (n - 1) // 3, 2 - (n - 1) % 3
-        cell(1 + s, t, 2 + s, t + 1, pocket_colour(str(n), reds), str(n))
-    for i in range(3):
-        cell(13, i, 14, i + 1, None, "2TO1")
-        cell(1 + 4 * i, 3, 5 + 4 * i, 4, None, ("1ST 12", "2ND 12", "3RD 12")[i])
-    for i, label in enumerate(("1-18", "EVEN", "RED", "BLACK", "ODD", "19-36")):
-        cell(1 + 2 * i, 4, 3 + 2 * i, 5, {"RED": RED, "BLACK": BLACK}.get(label), label)
+                      GRID_X + round(u1 * CELL), GRID_Y + round(v1 * CELL), fill, FELT_LABELS.get(name, name)))
 
     for x0, y0, x1, y1, fill, label in cells:
         if fill:
@@ -212,10 +173,10 @@ def base_colour(r, a):
     return (16, 16, 18)
 
 
-def rotor_colour(order, reds):
+def rotor_colour(order):
     n = len(order)
     step = math.tau / n
-    colours = [pocket_colour(label, reds) for label in order]
+    colours = [pocket_colour(label) for label in order]
     labels = [text_bits(label) for label in order]
     mid = (R_POCKETS + R_NUMBERS) / 2
 
@@ -248,15 +209,15 @@ def wheel_base():
     return c
 
 
-def wheel_rotor(order, reds):
+def wheel_rotor(order):
     c = Canvas(WHEEL, WHEEL)
-    c.polar(rotor_colour(order, reds), WHEEL)
+    c.polar(rotor_colour(order), WHEEL)
     return c
 
 
-def pack_icon(order, reds):
-    rotor = rotor_colour(order, reds)
-    c = Canvas(256, 256)
+def pack_icon(order):
+    rotor = rotor_colour(order)
+    c = Canvas(*CONTRACT["pack_icon"]["size"])
     c.polar(lambda r, a: rotor(r, a) or base_colour(r, a), WHEEL)
     return c
 
@@ -312,29 +273,24 @@ def icon(fill, *lines):
 
 
 # ---- what the pack contains ------------------------------------------------------------------------------------
-FLAT = ["felt_european", "felt_american", "wheel_base", "wheel_european", "wheel_american", "ball",
-        "marker", "highlight"]
-CHIP_IDS = [f"chip_{i}" for i in range(1, 7)]
-MENU = ([f"n_{i}" for i in range(37)] + ["n_00"] + [f"dozen_{i}" for i in (1, 2, 3)]
-        + [f"column_{i}" for i in (1, 2, 3)] + ["red", "black", "odd", "even", "low", "high"])
-
-SIZES = {"felt_european": (FELT_W, FELT_H), "felt_american": (FELT_W, FELT_H), "wheel_base": (WHEEL, WHEEL),
-         "wheel_european": (WHEEL, WHEEL), "wheel_american": (WHEEL, WHEEL)}
-HALF_OK = set(SIZES)   # the contract allows these at exactly half size, all together
+FLAT = FELT_C["files"] + list(WHEEL_C["files"].values()) + ["marker", "highlight"]
+CHIP_IDS = [name for name in CONTRACT["small"]["files"] if name.startswith("chip_")]
+MENU = CONTRACT["menu"]["files"]
 
 
 def texture_path(name):
     return TEXTURES / f"{name}.png"
 
 
-def placeholders(orders, reds):
-    """name -> function returning a Canvas, for every texture; evaluated only for the files that get written."""
+def placeholders():
+    """path -> function returning a Canvas, for every texture; evaluated only for the files that get written."""
+    orders = CONTRACT["pockets"]
     art = {
-        "felt_european": lambda: felt(False, reds),
-        "felt_american": lambda: felt(True, reds),
+        "felt_european": lambda: felt("european"),
+        "felt_american": lambda: felt("american"),
         "wheel_base": wheel_base,
-        "wheel_european": lambda: wheel_rotor(orders["european"], reds),
-        "wheel_american": lambda: wheel_rotor(orders["american"], reds),
+        "wheel_european": lambda: wheel_rotor(orders["european"]),
+        "wheel_american": lambda: wheel_rotor(orders["american"]),
         "ball": lambda: small(ball),
         "marker": lambda: small(marker),
         "highlight": lambda: small(highlight),
@@ -342,7 +298,7 @@ def placeholders(orders, reds):
     for i, rgb in enumerate(CHIPS):
         art[CHIP_IDS[i]] = lambda rgb=rgb: chip(rgb)
     for label in [str(i) for i in range(37)] + ["00"]:
-        art[f"menu/n_{label}"] = lambda label=label: icon(pocket_colour(label, reds), label)
+        art[f"menu/n_{label}"] = lambda label=label: icon(pocket_colour(label), label)
     for i, (lo, hi) in enumerate(((1, 12), (13, 24), (25, 36)), 1):
         art[f"menu/dozen_{i}"] = lambda lo=lo, hi=hi: icon(CLOTH, str(lo), str(hi))
         art[f"menu/column_{i}"] = lambda i=i: icon(CLOTH, f"C{i}")
@@ -353,7 +309,9 @@ def placeholders(orders, reds):
     art["menu/low"] = lambda: icon(CLOTH, "1", "18")
     art["menu/high"] = lambda: icon(CLOTH, "19", "36")
     files = {texture_path(name): make for name, make in art.items()}
-    files[PACK / "pack.png"] = lambda: pack_icon(orders["european"], reds)
+    files[PACK / "pack.png"] = lambda: pack_icon(orders["european"])
+    if set(files) != set(check_art.expected_files()):
+        sys.exit("generate_placeholders.py and contract.json disagree about which files exist")
     return files
 
 
@@ -380,13 +338,15 @@ def write_pack_files():
     for name in FLAT + CHIP_IDS:
         write_json(models / f"{name}.json",
                    {"parent": "roulette:item/flat", "textures": {"0": f"roulette:item/{name}"}})
-    # The ball is the exception: a 2/16 square that sits 22/16 block away from the model's centre, towards the
+    # The ball is the exception: a small square that sits 22/16 block away from the model's centre, towards the
     # wheel picture's 12 o'clock. The display entity stays at the wheel's centre and swings the ball around by
     # rotation alone, which the client interpolates as a true arc. display/WheelView.java (BALL_ORBIT) scales it so
-    # that this distance is the ball track, and relies on these two numbers.
+    # that this distance is the ball track; ArtContractTest holds the two together.
+    orbit, size = (CONTRACT["world"]["ball_model_sixteenths"][k] for k in ("orbit", "size"))
     write_json(models / "ball.json", {
         "textures": {"0": "roulette:item/ball", "particle": "#0"},
-        "elements": [{"from": [7, 8, 29], "to": [9, 8, 31], "shade": False,
+        "elements": [{"from": [8 - size // 2, 8, 8 + orbit - size // 2],
+                      "to": [8 + size // 2, 8, 8 + orbit + size // 2], "shade": False,
                       "faces": {"up": {"uv": [16, 16, 0, 0], "texture": "#0"}}}]})
     for name in FLAT:
         write_json(items / f"{name}.json", {"model": {"type": "minecraft:model", "model": f"roulette:item/{name}"}})
@@ -406,10 +366,9 @@ def write_pack_files():
 
 
 def generate():
-    orders, reds = read_model()
     manifest = json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
     wrote = kept = 0
-    for path, make in placeholders(orders, reds).items():
+    for path, make in placeholders().items():
         key = path.relative_to(PACK).as_posix()
         if path.exists() and hashlib.sha256(path.read_bytes()).hexdigest() != manifest.get(key):
             manifest.pop(key, None)   # somebody's own art: never touched again
@@ -424,88 +383,6 @@ def generate():
     MANIFEST.write_text(json.dumps(dict(sorted(manifest.items())), indent=1) + "\n")
     write_pack_files()
     print(f"placeholders written: {wrote}, still placeholders: {len(manifest)}, hand-made files left alone: {kept}")
-
-
-# ---- --check ---------------------------------------------------------------------------------------------------
-def read_png(path):
-    """(width, height, rgba bytes) of an 8-bit RGBA, non-interlaced PNG; raises ValueError otherwise."""
-    data = path.read_bytes()
-    if data[:8] != b"\x89PNG\r\n\x1a\n":
-        raise ValueError("not a PNG file")
-    pos, idat, head = 8, b"", None
-    while pos < len(data):
-        length, kind = struct.unpack(">I4s", data[pos:pos + 8])
-        body = data[pos + 8:pos + 8 + length]
-        if kind == b"IHDR":
-            head = struct.unpack(">IIBBBBB", body)
-        elif kind == b"IDAT":
-            idat += body
-        pos += 12 + length
-    w, h, depth, colour, _, _, interlace = head
-    if (depth, colour, interlace) != (8, 6, 0):
-        raise ValueError("must be saved as RGBA, 8 bits per channel, not interlaced and not indexed")
-    raw, stride = zlib.decompress(idat), w * 4
-    out, prev = bytearray(), bytearray(stride)
-    for y in range(h):
-        f = raw[y * (stride + 1)]
-        row = bytearray(raw[y * (stride + 1) + 1:(y + 1) * (stride + 1)])
-        if f == 1:
-            for i in range(4, stride):
-                row[i] = (row[i] + row[i - 4]) & 255
-        elif f == 2:
-            for i in range(stride):
-                row[i] = (row[i] + prev[i]) & 255
-        elif f == 3:
-            for i in range(stride):
-                row[i] = (row[i] + ((row[i - 4] if i >= 4 else 0) + prev[i] >> 1)) & 255
-        elif f == 4:
-            for i in range(stride):
-                a, b, c = (row[i - 4] if i >= 4 else 0), prev[i], (prev[i - 4] if i >= 4 else 0)
-                p = a + b - c
-                pa, pb, pc = abs(p - a), abs(p - b), abs(p - c)
-                row[i] = (row[i] + (a if pa <= pb and pa <= pc else b if pb <= pc else c)) & 255
-        out += row
-        prev = row
-    return w, h, bytes(out)
-
-
-def check():
-    problems, scale = [], set()
-    files = [texture_path(n) for n in FLAT + CHIP_IDS + [f"menu/{m}" for m in MENU]] + [PACK / "pack.png"]
-    for path in files:
-        key = path.relative_to(PACK).as_posix()
-        name = path.relative_to(TEXTURES).with_suffix("").as_posix() if TEXTURES in path.parents else "pack"
-        if not path.exists():
-            problems.append(f"{key}: missing")
-            continue
-        try:
-            w, h, px = read_png(path)
-        except ValueError as e:
-            problems.append(f"{key}: {e}")
-            continue
-        want = SIZES.get(name, (256, 256) if name == "pack" else (SMALL, SMALL))
-        if (w, h) == want:
-            if name in HALF_OK:
-                scale.add(1)
-        elif name in HALF_OK and (w * 2, h * 2) == want:
-            scale.add(2)
-        else:
-            problems.append(f"{key}: is {w} x {h}, should be {want[0]} x {want[1]}")
-            continue
-        alpha = px[3::4]
-        if name != "highlight" and name != "pack" and alpha.count(0) + alpha.count(255) != len(alpha):
-            problems.append(f"{key}: has half-transparent pixels (only highlight.png may)")
-        if name == "wheel_base" and alpha.count(255) != len(alpha):
-            problems.append(f"{key}: must be opaque everywhere, corners included")
-        if name in ("wheel_european", "wheel_american"):
-            c, limit = w / 2, (R_NUMBERS + 1.5) * w / WHEEL
-            if any(alpha[y * w + x] and math.hypot(x + 0.5 - c, y + 0.5 - c) > limit
-                   for y in range(h) for x in range(w)):
-                problems.append(f"{key}: must be transparent beyond {R_NUMBERS * w // WHEEL} px from the centre")
-    if len(scale) > 1:
-        problems.append("felt and wheel files mix full size and half size: use one for all five")
-    print("\n".join(problems) if problems else "all textures fit the art contract")
-    return 1 if problems else 0
 
 
 def build_zip():
@@ -523,8 +400,6 @@ def build_zip():
 
 
 if __name__ == "__main__":
-    if sys.argv[1:] == ["--check"]:
-        sys.exit(check())
     if sys.argv[1:] == ["--zip"]:
         sys.exit(build_zip())
     if sys.argv[1:]:
