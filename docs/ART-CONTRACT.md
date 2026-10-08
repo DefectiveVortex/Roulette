@@ -150,7 +150,8 @@ the quick way.
   plain bright ball with one highlight reads best.
 - **Chips.** `chip_1` is the lowest value, `chip_6` the highest. No numbers on them: server owners set the values.
   Six colours that are easy to tell apart on green cloth and on red and black cells. The same picture is the icon
-  in the player's hotbar and the chip lying on the felt.
+  in the player's hotbar and the chip lying on the felt. Players without the pack see dyes instead, in the order
+  white, red, blue, green, black, purple; keeping that order is a suggestion, not a rule.
 - **Marker.** Shown on the winning number, about half a cell across. A ring or a small dolly seen from above works
   better than a solid disc, because the number under it should stay readable.
 - **Highlight.** A ring about the size of a chip, shown where the player is aiming. It may be half-transparent.

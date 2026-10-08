@@ -144,15 +144,25 @@ class ConfigFilesTest {
         config.set("table.spin-seconds", 500);
         config.set("table.max-payout", "lots");
         config.set("updates.channel", "nightly");
+        config.set("stats.save-minutes", 0);
+        config.set("wheel.board-numbers", 99);
+        config.set("resource-pack.send", "always");
+        config.set("resource-pack.url", "ftp://example.org/pack.zip");
+        config.set("resource-pack.sha1", "abc123");
 
-        assertEquals(5, ConfigValidator.validateConfig(config, yaml(bundled("config.yml")), log));
+        assertEquals(10, ConfigValidator.validateConfig(config, yaml(bundled("config.yml")), log));
+        assertEquals(5, config.getInt("stats.save-minutes"));
+        assertEquals(10, config.getInt("wheel.board-numbers"));
+        assertEquals("table", config.getString("resource-pack.send"));
+        assertEquals("", config.getString("resource-pack.url"));
+        assertEquals("", config.getString("resource-pack.sha1"));
 
         assertEquals("european", config.getString("table.wheel"));
         assertEquals(10, config.getInt("table.min-bet"));
         assertEquals(8, config.getInt("table.spin-seconds"));
         assertEquals(50000, config.getInt("table.max-payout"));
         assertEquals("release", config.getString("updates.channel"));
-        assertEquals(5, warnings.size(), warnings.toString());
+        assertEquals(10, warnings.size(), warnings.toString());
     }
 
     @Test

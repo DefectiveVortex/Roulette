@@ -90,6 +90,16 @@ top-ranking-net: "net winnings"
 top-ranking-biggest: "biggest single win"
 top-ranking-rounds: "rounds played"
 
+# The board of recent numbers above the wheel (newest first). Black is shown light: the board is dark
+board-title: "&6Last numbers"
+board-empty: "&7-"
+board-red: "&c%number%"
+board-black: "&f%number%"
+board-green: "&a%number%"
+
+# Shown in the client's "use this resource pack?" question. Empty = the client's default text
+resource-pack-prompt: "&6Roulette &7draws its table, wheel and chips with this pack."
+
 # Tables (/roulette create|remove|list|set, sitting down and leaving)
 table-created: "&aRoulette table &e%table% &acreated. Right-click it or a stool to sit down."
 table-removed: "&aRoulette table &e%table% &aremoved."

@@ -1,6 +1,32 @@
 {
-  "parent": "roulette:item/flat",
   "textures": {
-    "0": "roulette:item/ball"
-  }
+    "0": "roulette:item/ball",
+    "particle": "#0"
+  },
+  "elements": [
+    {
+      "from": [
+        7,
+        8,
+        29
+      ],
+      "to": [
+        9,
+        8,
+        31
+      ],
+      "shade": false,
+      "faces": {
+        "up": {
+          "uv": [
+            16,
+            16,
+            0,
+            0
+          ],
+          "texture": "#0"
+        }
+      }
+    }
+  ]
 }
