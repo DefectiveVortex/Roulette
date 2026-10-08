@@ -38,10 +38,16 @@ version-open-hover: "&7Open the Modrinth page"
 help-header: "&4&lRoulette"
 help-lines:
   - "&e/roulette help &7- This list"
+  - "&e/roulette menu &7- Bet menu, while seated"
+  - "&e/roulette leave &7- Leave your table"
   - "&e/roulette stats [player] &7- Roulette statistics"
   - "&e/roulette top [wagered|won|net|biggest|rounds] &7- The leaderboards"
   - "&e/roulette version &7- Plugin version"
 help-admin-lines:
+  - "&c/roulette create <name> [european|american] &7- Build a table in front of you"
+  - "&c/roulette remove <name> &7- Remove a table"
+  - "&c/roulette list &7- All tables"
+  - "&c/roulette set <name> <setting> <value> &7- Change a table's limits or wheel"
   - "&c/roulette reload &7- Reload config and messages"
   - "&c/roulette update &7- Check for a new version now"
 

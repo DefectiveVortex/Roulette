@@ -3,6 +3,7 @@ package com.vortex.roulette.command;
 import com.vortex.roulette.RoulettePlugin;
 import com.vortex.roulette.config.ConfigManager;
 import com.vortex.roulette.stats.StatsCommand;
+import com.vortex.roulette.table.TableCommands;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -19,10 +20,12 @@ public final class RouletteCommand implements TabExecutor {
 
     private final RoulettePlugin plugin;
     private final StatsCommand stats;
+    private final TableCommands tables;
 
-    public RouletteCommand(RoulettePlugin plugin, StatsCommand stats) {
+    public RouletteCommand(RoulettePlugin plugin, StatsCommand stats, TableCommands tables) {
         this.plugin = plugin;
         this.stats = stats;
+        this.tables = tables;
     }
 
     @Override
@@ -56,6 +59,9 @@ public final class RouletteCommand implements TabExecutor {
                     : config.prefixed("reload-warnings", "count", warnings));
             }
             default -> {
+                if (tables.handle(sender, args)) {
+                    return true;
+                }
                 if (!StatsCommand.subcommands().contains(sub)) {
                     sender.sendMessage(config.prefixed("unknown-command"));
                 } else if (!sender.hasPermission(PLAY) || (sub.equals("stats") && args.length > 1
@@ -75,6 +81,10 @@ public final class RouletteCommand implements TabExecutor {
             return List.of();
         }
         if (args.length > 1) {
+            List<String> forTable = tables.complete(sender, args);
+            if (!forTable.isEmpty()) {
+                return forTable;
+            }
             boolean own = StatsCommand.subcommands().contains(args[0].toLowerCase(Locale.ROOT));
             boolean names = args[0].equalsIgnoreCase("stats") && !sender.hasPermission(STATS_OTHERS);
             return own && !names && sender.hasPermission(PLAY) ? stats.complete(sender, args) : List.of();
@@ -83,6 +93,7 @@ public final class RouletteCommand implements TabExecutor {
         if (sender.hasPermission(PLAY)) {
             options.addAll(StatsCommand.subcommands());
         }
+        options.addAll(tables.subcommands(sender));
         if (sender.hasPermission(ADMIN)) {
             options.add("reload");
             options.add("update");
