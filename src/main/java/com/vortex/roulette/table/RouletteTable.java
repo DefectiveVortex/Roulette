@@ -280,6 +280,7 @@ public final class RouletteTable {
         show();
         bar.addPlayer(player);
         manager.chips().give(player);
+        plugin.pack().offerAtTable(player);
         for (String line : plugin.config().messageList("table-sit-hint")) {
             player.sendMessage(line);
         }
