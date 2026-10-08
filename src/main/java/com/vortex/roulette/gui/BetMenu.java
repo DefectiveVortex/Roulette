@@ -23,6 +23,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -156,6 +157,7 @@ public final class BetMenu implements Listener {
         Map<BetSpot, Long> mine = round == null ? Map.of() : round.betsOf(player.getUniqueId());
         String chip = config.money(chips.selectedValue(player));
         ItemStack filler = named(Material.GRAY_STAINED_GLASS_PANE, 1, " ", List.of(), false);
+        boolean packed = plugin.pack().hasPack(player);
         for (int slot = 0; slot < SIZE; slot++) {
             BetSpot spot = view.spots[slot];
             if (spot == null) {
@@ -170,7 +172,15 @@ public final class BetMenu implements Listener {
             }
             lore.add(config.message("menu-lore-place", "chip", chip));
             lore.add(config.message("menu-lore-take", "chip", chip));
-            view.inventory.setItem(slot, named(material(spot), amount(spot), SpotNames.name(config, spot), lore, stake > 0));
+            ItemStack item = named(material(spot), amount(spot), SpotNames.name(config, spot), lore, stake > 0);
+            if (packed) {
+                // the pack draws the cell itself; without it the vanilla item and its stack size stand in
+                ItemMeta icon = item.getItemMeta();
+                icon.setItemModel(new NamespacedKey("roulette", "menu/" + iconName(spot)));
+                item.setItemMeta(icon);
+                item.setAmount(1);
+            }
+            view.inventory.setItem(slot, item);
         }
         ItemStack chipItem = chips.chipItem(chips.tier(player));
         ItemMeta meta = chipItem.getItemMeta();
@@ -222,6 +232,16 @@ public final class BetMenu implements Listener {
             case LOW -> Material.IRON_INGOT;
             case HIGH -> Material.GOLD_INGOT;
             default -> Material.PAPER;
+        };
+    }
+
+    /** The icon's name in the pack (docs/ART-CONTRACT.md, menu icons): n_17, n_00, dozen_2, column_3, red. */
+    static String iconName(BetSpot spot) {
+        return switch (spot.type()) {
+            case STRAIGHT -> "n_" + spot.pockets().get(0).label();
+            case DOZEN -> "dozen_" + spot.index();
+            case COLUMN -> "column_" + spot.index();
+            default -> spot.type().name().toLowerCase(java.util.Locale.ROOT);
         };
     }
 

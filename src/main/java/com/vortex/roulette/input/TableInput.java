@@ -46,6 +46,8 @@ public final class TableInput implements Listener {
     private static final class State {
         int lastRightClick = -10;
         int ignoreSwingUntil = -10;
+        /** The click that sat the player down must not also bet; its second packet and its arm swing follow at once. */
+        int ignoreClicksUntil = -10;
         int lastRefusal = -1000;
         PlaceResult lastRefused;
         String actionBar = "";
@@ -138,6 +140,7 @@ public final class TableInput implements Listener {
             return;
         }
         switch (hit.table().sit(player, seat)) {
+            case OK -> state(player).ignoreClicksUntil = Bukkit.getCurrentTick() + 6;
             case FULL -> player.sendMessage(config.prefixed("table-full"));
             case SEAT_TAKEN -> player.sendMessage(config.prefixed("table-seat-taken"));
             case NO_ECONOMY -> player.sendMessage(config.prefixed("economy-unavailable"));
@@ -148,7 +151,7 @@ public final class TableInput implements Listener {
     private void rightClick(Player player, RouletteTable table) {
         State state = state(player);
         int now = Bukkit.getCurrentTick();
-        if (state.lastRightClick == now) {
+        if (state.lastRightClick == now || now <= state.ignoreClicksUntil) {
             return; // one click can arrive as a block click and an item use
         }
         state.lastRightClick = now;
@@ -177,7 +180,7 @@ public final class TableInput implements Listener {
         }
         State state = state(player);
         int now = Bukkit.getCurrentTick();
-        if (now <= state.ignoreSwingUntil || now - state.lastRightClick <= 1 || manager.menu().isOpen(player)) {
+        if (now <= state.ignoreSwingUntil || now <= state.ignoreClicksUntil || now - state.lastRightClick <= 1 || manager.menu().isOpen(player)) {
             return; // the arm also swings after a right-click and after pressing the drop key
         }
         Placed target = table.aimOf(player).orElse(null);
